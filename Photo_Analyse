@@ -1,0 +1,334 @@
+from random import *
+from PIL import Image, ImageDraw
+
+mode = 0# n=10-12 for "asd.jpg"
+#n=int(input("n:"))#есть смысл ставить n от 6 на очень маленьких до 16 на очень больших и искать 2 близкие квадратные области с высокой концентрацией вертикальных градиентов
+n=12
+#k = int(input("yarkost':"))
+image = Image.open("asd3.jpg")
+draw = ImageDraw.Draw(image)
+width = image.size[0]
+height = image.size[1]
+pix = image.load()
+print(height, width)
+if (True):
+	for i in range(width):
+		for j in range(height):
+			a = pix[i, j][0]
+			b = pix[i, j][1]
+			c = pix[i, j][2]
+			S = (a + b + c) // 3
+			draw.point((i, j), (S,S,S))# (координата по x, коориданат по Y), (от 0 до 255 количество красного в пикселе, 0-255 green, 0-255 blue)
+if (mode == 10):
+	depth = int(input('depth:'))
+	for i in range(width):
+		for j in range(height):
+			a = pix[i, j][0]
+			b = pix[i, j][1]
+			c = pix[i, j][2]
+			S = (a + b + c) // 3
+			a = S + depth * 2
+			b = S + depth
+			c = S
+			if (a > 255):
+				a = 255
+			if (b > 255):
+				b = 255
+			if (c > 255):
+				c = 255
+			draw.point((i, j), (a, b, c))
+if (mode == 2):
+	for i in range(width):
+		for j in range(height):
+			a = pix[i, j][0]
+			b = pix[i, j][1]
+			c = pix[i, j][2]
+			draw.point((i, j), (255 - a, 255 - b, 255 - c))
+if (mode == 3):
+	factor = int(input('factor:'))
+	for i in range(width):
+		for j in range(height):
+			rand = random.randint(-factor, factor)
+			a = pix[i, j][0] + rand
+			b = pix[i, j][1] + rand
+			c = pix[i, j][2] + rand
+			if (a < 0):
+				a = 0
+			if (b < 0):
+				b = 0
+			if (c < 0):
+				c = 0
+			if (a > 255):
+				a = 255
+			if (b > 255):
+				b = 255
+			if (c > 255):
+				c = 255
+			draw.point((i, j), (a, b, c))
+if (mode == 4):
+	factor = int(input('factor:'))
+	for i in range(width):
+		for j in range(height):
+			a = pix[i, j][0] + factor
+			b = pix[i, j][1] + factor
+			c = pix[i, j][2] + factor
+			if (a < 0):
+				a = 0
+			if (b < 0):
+				b = 0
+			if (c < 0):
+				c = 0
+			if (a > 255):
+				a = 255
+			if (b > 255):
+				b = 255
+			if (c > 255):
+				c = 255
+			draw.point((i, j), (a, b, c))
+if (mode == 5):
+	factor = int(input('factor:'))
+	for i in range(width):
+		for j in range(height):
+			a = pix[i, j][0]
+			b = pix[i, j][1]
+			c = pix[i, j][2]
+			S = a + b + c
+			if (S > (((255 + factor) // 2) * 3)):
+				a, b, c = 255, 255, 255
+			else:
+				a, b, c = 0, 0, 0
+			draw.point((i, j), (a, b, c))
+def is_valid(x,y):
+	if(x >=0 and x < width and y>=0 and y<height):
+		return True
+	else:
+		return False
+def up_valid(x,y,lenn1,lenn2):
+	if(x >=0 and x < lenn1 and y>=0 and y<lenn2):
+		return True
+	else:
+		return False
+left = '<'
+right = '>'
+up = '^'
+down = '_'
+def HOG_struct():
+	new_image = ['a'] * width
+	for j in range(width):
+		new_image[j] = ['.'] * height
+	for i in range(width):
+		for j in range(height):
+			maxs = -1
+			x=0
+			y=0
+			if is_valid(i-1,j):
+				if(maxs < pix[i-1,j][0]):
+					maxs = pix[i-1,j][0]
+					x=i-1
+					y=j
+			if is_valid(i+1,j):
+				if(maxs < pix[i+1,j][0]):
+					maxs = pix[i+1,j][0]
+					x=i+1
+					y=j
+			if is_valid(i,j-1):
+				if(maxs < pix[i,j-1][0]):
+					maxs = pix[i,j-1][0]
+					x=i
+					y=j-1
+			if is_valid(i,j+1):
+				if(maxs < pix[i,j+1][0]):
+					maxs = pix[i,j+1][0]
+					x=i
+					y=j+1
+			#print(new_image[i][j])
+
+			if(x,y) ==(i-1,j):
+				new_image[i][j] = left
+			if (x, y) == (i + 1, j):
+				new_image[i][j] = right
+			if (x, y) == (i, j-1):
+				new_image[i][j] = up
+			if (x, y) == (i, j+1):
+				new_image[i][j] = down
+
+
+
+
+	return new_image
+new_image = HOG_struct()
+def csd_HOG(n):
+	hig = height//n
+	wid = width//n
+	pic = [0] * wid
+	for j in range(wid):
+		pic[j] = [0] * hig
+	for i in range(wid):
+		for j in range(hig):
+			lefts=0
+			rights=0
+			ups=0
+			downs=0
+			for l in range(n):
+				for k in range(n):
+					if new_image[i*n+l][j*n+k] == left:
+						lefts+=1
+					if new_image[i*n+l][j*n+k] == right:
+						rights+=1
+					if new_image[i*n+l][j*n+k] == up:
+						ups+=1
+					if new_image[i*n+l][j*n+k] == down:
+						downs+=1
+			maxum = max(lefts,rights,ups,downs)
+			if(lefts == maxum):
+				pic[i][j]=left
+			elif(rights==maxum):
+				pic[i][j] = right
+			elif(ups == maxum):
+				pic[i][j] = up
+			else:
+				pic[i][j] = down
+	return pic
+HOG_pic = csd_HOG(n)
+def csd2_HOG(n):
+	hig = height//n
+	wid = width//n
+	pic = [0] * wid
+	for j in range(wid):
+		pic[j] = [0] * hig
+	for i in range(wid):
+		for j in range(hig):
+			lefts=0
+			rights=0
+			ups=0
+			downs=0
+			for l in range(n):
+				for k in range(n):
+					if new_image[i*n+l][j*n+k] == left:
+						lefts+=1
+					if new_image[i*n+l][j*n+k] == right:
+						rights+=1
+					if new_image[i*n+l][j*n+k] == up:
+						ups+=1
+					if new_image[i*n+l][j*n+k] == down:
+						downs+=1
+			maxum = max(lefts+rights,ups+downs)
+			if(lefts+rights == maxum):
+				pic[i][j]=-(rights+lefts)
+
+			else:
+				pic[i][j] = ups+downs
+	return pic
+#HOG_pic = csd2_HOG(n)
+if (mode == 1):
+	for i in range(width):
+		for j in range(height):
+			if(new_image[i][j] == left or new_image[i][j] == right):
+				draw.point((i, j), (255, 255, 255))
+			else:
+				draw.point((i, j), (0, 0, 0))
+def wtf(n):
+	for i in range(width//n):
+		for j in range(height//n):
+			if (HOG_pic[i][j] == left or HOG_pic[i][j] == right):
+
+				for l in range(n):
+					for k in range(n):
+						if (k == n//2):
+
+							draw.point((i * n + l, j * n + k), (255, 255, 255))
+						else:
+							draw.point((i*n+l, n*j+k), (0, 0, 0))
+			else:
+				for l in range(n):
+					for k in range(n):
+						if (l == n//2):
+
+							draw.point((i * n + l, j * n + k), (255, 255, 255))
+						else:
+							draw.point((i*n+l, n*j+k), (0, 0, 0))
+#wtf(n)# показывать черно-белое градиетное изображение(вкл) или оставить начальное и нанести красную область(выкл)
+def wtf2(n):
+	for i in range(width//n):
+		for j in range(height//n):
+			if (HOG_pic[i][j] >0):
+				HOG_pic[i][j] = n**2 - HOG_pic[i][j]
+			for l in range(n):
+				for k in range(n):
+
+					draw.point((i*n+l, n*j+k), (k*HOG_pic[i][j],k* HOG_pic[i][j],k* HOG_pic[i][j]))
+
+#wtf2(n)
+#for j in range(len(new_image)):
+#	print(" ".join(new_image[j]))
+def square_coef(len1,len2,i,j,sq_sd):
+
+	ud = 0
+	for l in range(sq_sd):
+		for k in range(sq_sd):
+			if up_valid(i + l, j + k, len1, len2):
+				if HOG_pic[i + l][j + k] == up or HOG_pic[i + l][j + k] == down:
+					ud += 1
+			else:
+				return -1
+	return ud
+def search_eyes():
+	len1 = len(HOG_pic)
+	len2 = len(HOG_pic[0])
+	sq_sd = 6
+	#		///###\\\....
+	#		///###\\\....
+	#		\\\###///....
+	mx_coef = -1
+	for i in range(len1):
+		for j in range(len2):
+
+			coef1 = square_coef(len1,len2,i,j,sq_sd)
+			coef2 = square_coef(len1,len2,i+sq_sd,j,sq_sd)
+			coef3 = square_coef(len1,len2,i+2*sq_sd,j,sq_sd)
+			if(coef1 != -1 and coef2 != -1 and coef3 != -1 and coef1!=0 and coef2!= 0 and coef3!= 0 and coef1 >= 20 and coef3 >= 20 and (coef1+coef3) > 45):#работает нормально для фото ~ 360X570(параметры <<-- 20,20,45"asd.jpg";;; для "asd3.jpg" тоже неплохо но лучше 25,25,50)(и желательно не меньше, примерно работает для больше но не слишком больших) с одним лицом и глаза на одном уровне.
+				sum_coef = (coef1+coef3)/coef2
+				if sum_coef > mx_coef:
+					mx_coef = sum_coef
+					coord_ans = [i,j]
+					coefs_max = [coef1,coef2,coef3]
+	print(coefs_max)
+	return coord_ans
+draw_coords = search_eyes()
+#print()
+def next_draw():
+	for i in range(draw_coords[0],draw_coords[0]+18):
+		j = draw_coords[1]
+		for l in range(n):
+			k = n//2
+			draw.point((i * n + l, j * n), (255, 0, 0))
+		j += 6
+		for l in range(n):
+			k = n//2
+			draw.point((i * n + l, j * n), (255, 0, 0))
+	for i in range(draw_coords[1],draw_coords[1]+6):
+		j = draw_coords[0]
+		for l in range(n):
+			k = n//2
+			draw.point((j * n, i * n + l), (255, 0, 0))
+		j +=6
+		for l in range(n):
+			k = n // 2
+			draw.point((j * n, i * n + l), (0, 255, 0))
+		j += 6
+		for l in range(n):
+			k = n // 2
+			draw.point((j * n, i * n + l), (0, 0, 255))
+		j += 6
+		for l in range(n):
+			k = n // 2
+			draw.point((j * n, i * n + l), (255, 0, 0))
+
+
+next_draw()
+
+
+
+
+image.save("ans.jpg", "JPEG")
+del draw
