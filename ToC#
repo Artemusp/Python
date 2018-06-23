@@ -1,0 +1,78 @@
+def inputs():
+    file = open("out.txt")
+    A = file.readlines()
+    file.close()
+    return A
+#A = inputs()
+from math import *
+def start():
+    print("\nclass Program{\n\tvoid Main(){\n\t\tConsole.WriteLine('Hello World!');")
+def end():
+    print("\n\t}\n}")
+dict = dict(int="int", float="double",list = False, str = "string")
+def prints( string):
+    print(2*"\t"+string)
+def var(path):
+    path=path.strip()
+    ind = 0
+    name = ""
+    while (path[ind]!=" "):
+        name+= path[ind]
+        ind+=1
+    ind+=3
+    typeof = str(type(eval(path[ind:])))[8:-2]
+    if(dict[typeof]):
+        return (dict[typeof]) + " " + name + " = " +path[ind:]+";"
+    else:
+        return "slojna s listom"
+def exes_of_var():
+    A = ["ahuy = '[1]'+'[3,1]'","a = 1+323+3","b = 3+5.3","A = [65,43]"]
+    ans=""
+    for j in A:
+        prints(var(j))
+#x=123
+#y=[23,2]
+#print(eval("x+y[1]+23"))
+def splits(path, a):
+    ans = []
+    ind = 0
+    r=False
+    for j in range(len(path)):
+        if path[j] not in a:
+            if not r:
+                r = True
+                ind = j
+        else:
+            if r:
+                ans.append(path[ind:j])
+                r=False
+    if r:
+        ans.append(path[ind:])
+    return ans
+a = "sd"
+def func(path):
+    ind2 = 0
+    path = path.strip()
+    ind = path.find("(")+1
+    for j in range(ind):
+        if path[j] == " ":
+            ind2 = j
+    ind2+=1
+    return "void " + path[ind2:ind-1] + "(string " + ", int ".join(splits(path[ind:],(" ", ",","(",")"))) + "){}"
+
+print("\t"+func("def func(a, b, c,   d,,e)"))
+
+
+def main():
+
+    A = inputs()
+    start()
+    #exes_of_var()
+    for j in A:
+        prints(var(j))
+    end()
+
+
+
+main()
+
