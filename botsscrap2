@@ -1,0 +1,107 @@
+# -*- coding: utf-8 -*-
+from chatterbot import ChatBot
+from chatterbot.trainers import ListTrainer
+from chatterbot.trainers import ChatterBotCorpusTrainer
+chatterbot = ChatBot("huy")
+#chatterbot.set_trainer(ChatterBotCorpusTrainer)
+#chatterbot.train("chatterbot.corpus.russian")
+#chatterbot.set_trainer(ListTrainer)#imp
+
+def printf(strs):
+
+    cur1 = strs.find(":")+1
+
+    cur2 = strs.rfind("<")
+    newss = strs[cur1:cur2]
+    if "<" not in newss:
+        return(newss)
+
+import requests
+
+#from rates import  *
+answer = list()
+mainurl = "http://rus.lang-study.com/category/dialogi-all/dialogi-po-teme-zhilyo/"
+
+urls = list()
+
+r = requests.get(mainurl).text.split("\n")
+
+example1 = "post"
+
+example2 = '<h3 class="title">'
+
+num =0
+#print("Operations:")
+for i in range(len(r)):#len(r)
+
+    if example2 in r[i]:
+
+        try:
+
+
+
+            print(r[i])
+
+            num+=1
+
+        except:
+
+            continue
+
+        if num % 2==0:
+
+            first = r[i].find("http")
+
+            second = r[i].rfind("rel")
+
+            print(r[i][first:second-2])
+
+            urls.append(r[i][first:second-2])
+
+
+
+
+
+
+for i in range(len(urls)):#len(urls)
+    url = urls[i]
+    r = requests.get(url)
+    news = r.text.split("\n")
+    ex1 = "entry"
+    for j in range(len(news)):#len(news)
+
+
+
+        if ex1 in news[j]:
+
+
+
+            cur = news[j]
+
+
+            print(news[j+1])
+
+            for i in range(15):
+
+                flag =0
+
+                for l in news[j+i]:
+
+                    if l<= "я" and l >= "А":
+
+                        flag =1
+
+
+
+                        break
+
+                if flag == 1 and (news[j+i][news[j+i].rfind("<")-1] in (".","!","?")):
+                    print(printf(news[j+i]))
+                    answer.append(printf(news[j+i]))
+
+
+
+            break
+#print(answer)
+#print("End")
+#chatterbot.train(answer)
