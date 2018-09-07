@@ -1,0 +1,51 @@
+# -*- coding: utf-8 -*-
+def printf(strs):
+    cur1 = strs.find(":")+1
+    cur2 = strs.rfind("<")
+    print(strs[cur1:cur2])
+import requests
+from rates import  *
+mainurl = "http://rus.lang-study.com/category/dialogi-all/v-gorode/"
+urls = list()
+r = requests.get(mainurl).text.split("\n")
+example1 = "post"
+example2 = '<h3 class="title">'
+num =0
+for i in range(len(r)):
+    if example2 in r[i]:
+        try:
+
+            print(r[i])
+            num+=1
+        except:
+            continue
+        if num % 2==0:
+            first = r[i].find("http")
+            second = r[i].rfind("rel")
+            print(r[i][first:second-2])
+            urls.append(r[i][first:second-2])
+
+
+url = "http://rus.lang-study.com/dialogi-all/заблудившийся-турист/"
+url2 = "http://rus.lang-study.com/dialogi-all/sprashivat_dorogy/"
+r = requests.get(url)
+#print(r.text)
+news = r.text.split("\n")
+ex1 = "entry"
+for j in range(0):#len(news)
+
+    if ex1 in news[j]:
+
+        cur = news[j]
+        #print(news[j+1])
+        for i in range(15):
+            flag =0
+            for l in news[j+i]:
+                if l<= "я" and l >= "А":
+                    flag =1
+
+                    break
+            if flag == 1 and (news[j+i][news[j+i].rfind("<")-1] in (".","!","?")):
+                printf(news[j+i])
+
+        break
