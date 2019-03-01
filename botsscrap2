@@ -2,7 +2,7 @@
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from chatterbot.trainers import ChatterBotCorpusTrainer
-chatterbot = ChatBot("huy")
+chatterbot = ChatBot("asd")
 #chatterbot.set_trainer(ChatterBotCorpusTrainer)
 #chatterbot.train("chatterbot.corpus.russian")
 #chatterbot.set_trainer(ListTrainer)#imp
